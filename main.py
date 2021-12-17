@@ -1,5 +1,5 @@
+import sys
 from enum import Enum
-
 
 class codStatus(Enum):
     Q = 0,
@@ -14,7 +14,6 @@ class elementStivaLucru:
         self.index = index
         self.isTerm = isTerm
         self.char = char
-
 
 def isNonTerm(x: str, listTerm: set):
     return x in listTerm
@@ -94,16 +93,24 @@ def citireListaProductie():
             line = line.strip()
             line = line.replace(' ', '')
             parts = line.split("->")
+
+            if parts[0] == parts[1][0]:
+                print("Gramatica recursiva la stanga, nu se poate analiza")
+                return None, None
+
             nonTerminali.add(parts[0])
 
             charList = [char for char in parts[1]]
             rules.append([parts[0], charList])
     return rules, nonTerminali
 
-
 if __name__ == '__main__':
     listaReguliProductie, nonTerminali = citireListaProductie()
-    print(listaReguliProductie)
+    
+    if listaReguliProductie == None:
+        sys.exit(1)
+
+    #print(listaReguliProductie)
     inputDeVerificat = input("Verificati: ")
 
     index = parcurgere(inputDeVerificat, listaReguliProductie,
