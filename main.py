@@ -60,7 +60,8 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali):
                 prodList = []
                 for element in stivaLucru:
                     if not element.isTerm:
-                        prodList.append(element.char)
+                        prodList.append(element.char +
+                                str(element.index))
 
                 print(prodList)
 
