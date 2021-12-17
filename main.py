@@ -57,6 +57,13 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali):
                 else: # insucces de moment
                     cod = codStatus.R
             else: # success
+                prodList = []
+                for element in stivaLucru:
+                    if not element.isTerm:
+                        prodList.append(element.char)
+
+                print(prodList)
+
                 return index
         elif cod == codStatus.R:
             elementLucru = stivaLucru.pop()
