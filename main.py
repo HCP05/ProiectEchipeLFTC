@@ -36,7 +36,7 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali):
     while (True):
         #print(cod)
         #print([[el.char, el.isTerm, el.index] for el in stivaLucru])
-        #print(stivaIntrare)
+        #print("Input: " + str(stivaIntrare))
 
         if cod == codStatus.Q:
             if len(stivaIntrare):
@@ -56,6 +56,8 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali):
                         element))
                 else: # insucces de moment
                     cod = codStatus.R
+            elif index < len(inputDeVerificat):
+                cod = codStatus.R
             else: # success
                 prodList = []
                 for element in stivaLucru:
@@ -65,6 +67,7 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali):
 
                 print(prodList)
 
+                #print("success returning")
                 return index
         elif cod == codStatus.R:
             elementLucru = stivaLucru.pop()
@@ -85,6 +88,7 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali):
                     stivaIntrare = stivaIntrare[0:-lungime]
                     stivaIntrare.extend(listaReguliProductie[indexRegula][1][::-1])
                 elif index == 0 and elementLucru.char == listaReguliProductie[0][0]: # eroare
+                    #print("failure returning")
                     return -1
                 else: # comprimare
                     lungime = len(listaReguliProductie[elementLucru.index][1])
