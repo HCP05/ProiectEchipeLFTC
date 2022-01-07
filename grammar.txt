@@ -1,7 +1,73 @@
-exp -> CONST
-exp -> term
-exp -> term '+' exp
-exp -> term '=' exp
+program -> %empty
+program -> function program
+program -> preprocessor_line program
+
+preprocessor_line -> '#' 'include' '<' ID '>'
+
+function -> type ID '(' parameter_list ')' '{' instruction_list '}'
+
+type -> 'int'
+type -> 'float'
+
+parameter_list -> %empty
+parameter_list -> parameter_declaration
+parameter_list -> parameter_declaration ',' parameter_list
+
+parameter_declaration -> type ID
+
+instruction_list -> %empty
+instruction_list -> instruction instruction_list
+
+instruction -> variable_declaration ';'
+instruction -> exp ';'
+instruction -> function_call ';'
+instruction -> if_statement
+instruction -> while_statement
+instruction -> return_statement ';'
+
+variable_declaration -> type declaration_id_list
+
+declaration_id_list -> term
+declaration_id_list -> term '=' exp
+declaration_id_list -> term ',' declaration_id_list
+declaration_id_list -> term '=' exp ',' declaration_id_list
+
 term -> ID
 term -> '*' ID
-term -> '&' ID
+
+exp -> '*' term
+exp -> '&' term
+exp -> exp_term
+exp -> exp_term '=' exp
+exp -> exp_term '+=' exp
+exp -> exp_term '-=' exp
+exp -> exp_term '*=' exp
+exp -> exp_term '/=' exp
+exp -> exp_term '>' exp
+exp -> exp_term '<' exp
+exp -> exp_term '==' exp
+exp -> exp_term '!=' exp
+exp -> exp_term '>=' exp
+exp -> exp_term '<=' exp
+exp -> exp_term '+' exp
+exp -> exp_term '-' exp
+exp -> exp_term '*' exp
+exp -> exp_term '/' exp
+
+exp_term -> term
+exp_term -> CONST
+exp_term -> '(' exp_term ')'
+exp_term -> '(' exp ')'
+
+function_call -> ID '(' argument_list ')'
+
+argument_list -> %empty
+argument_list -> exp
+argument_list -> exp ',' argument_list
+
+if_statement -> 'if' '(' exp ')' '{' instruction_list '}'
+if_statement -> 'if' '(' exp ')' '{' instruction_list '}' 'else' '{' instruction_list '}'
+
+while_statement -> 'while' '(' exp ')' '{' instruction_list '}'
+
+return_statement -> 'return' exp

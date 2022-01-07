@@ -34,6 +34,7 @@ def verificare(fip_element, grammar_element, atoms):
     #print("Checking %d and %s, in tokens %s"%(fip_element[0],
     #    grammar_element, str(fip_element[0] in TOKENS)))
 
+
     if fip_element[0] in TOKENS:
         return TOKENS[fip_element[0]] == grammar_element
     else:
@@ -41,6 +42,9 @@ def verificare(fip_element, grammar_element, atoms):
 
         return grammar_element[0] == "'" and\
                 fip_string == grammar_element[1:-1]
+
+def findRelativeIndex(rule, all_rules):
+    return rule.index - findIndex(rule.char, all_rules)
 
 def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali,
         atomi):
@@ -50,10 +54,19 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali,
     stivaLucru = []
     stivaIntrare = [listaReguliProductie[0][0]]
     #
+    max_len = 0
 
     while (True):
         #print(cod)
         #print([[el.char, el.isTerm, el.index] for el in stivaLucru])
+
+        #if len(stivaLucru) >= max_len:
+        #    print(str(index) + ": " + str([el.char +
+        #        (str(findRelativeIndex(el, listaReguliProductie))
+        #        if el.index != None else "") for el in
+        #        stivaLucru]))
+        #    print(stivaIntrare)
+        max_len = max(max_len, len(stivaLucru))
         #print("Input: " + str(stivaIntrare))
 
         if cod == codStatus.Q:
@@ -82,7 +95,8 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali,
                 for element in stivaLucru:
                     if not element.isTerm:
                         prodList.append(element.char +
-                                str(element.index))
+                                str(findRelativeIndex(element,
+                                    listaReguliProductie)))
 
                 print(prodList)
 
@@ -104,7 +118,8 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali,
                         indexRegula, elementLucru.char))
 
                     lungime = len(listaReguliProductie[elementLucru.index][1])
-                    stivaIntrare = stivaIntrare[0:-lungime]
+                    if lungime:
+                        stivaIntrare = stivaIntrare[0:-lungime]
                     stivaIntrare.extend(listaReguliProductie[indexRegula][1][::-1])
                 elif index == 0 and elementLucru.char == listaReguliProductie[0][0]: # eroare
                     #print("failure returning")
@@ -122,6 +137,10 @@ def citireListaProductie(file_name):
 
         for line in lines:
             line = line.strip()
+
+            if not len(line):
+                continue
+
             parts = line.split("->")
             rule_name = parts[0].strip()
             terms = parts[1].split()
@@ -129,6 +148,9 @@ def citireListaProductie(file_name):
             if rule_name == terms[0]:
                 print("Gramatica recursiva la stanga, nu se poate analiza")
                 return None, None
+
+            if '%empty' in terms:
+                terms = []
 
             nonTerminali.add(rule_name)
 
