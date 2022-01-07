@@ -1,6 +1,11 @@
 import sys
 from enum import Enum
 
+TOKENS = {
+    0: "ID",
+    1: "CONST"
+}
+
 class codStatus(Enum):
     Q = 0,
     R = 1
@@ -25,7 +30,20 @@ def findIndex(nonTerm, listaReguliProductie, minIndex = -1):
 
     return -1
 
-def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali):
+def verificare(fip_element, grammar_element, atoms):
+    #print("Checking %d and %s, in tokens %s"%(fip_element[0],
+    #    grammar_element, str(fip_element[0] in TOKENS)))
+
+    if fip_element[0] in TOKENS:
+        return TOKENS[fip_element[0]] == grammar_element
+    else:
+        fip_string = atoms[fip_element[0]]
+
+        return grammar_element[0] == "'" and\
+                fip_string == grammar_element[1:-1]
+
+def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali,
+        atomi):
     # Parametrii de lucru
     cod = codStatus.Q
     index = 0
@@ -49,7 +67,8 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali):
                         indexRegula, element))
                     stivaIntrare.pop()
                     stivaIntrare.extend(listaReguliProductie[indexRegula][1][::-1])
-                elif index < len(inputDeVerificat) and inputDeVerificat[index] == element: # avans
+                elif index < len(inputDeVerificat) and verificare(
+                        inputDeVerificat[index], element, atomi): # avans
                     index += 1
                     stivaIntrare.pop()
                     stivaLucru.append(elementStivaLucru(True, None,
@@ -95,37 +114,77 @@ def parcurgere(inputDeVerificat, listaReguliProductie, nonTerminali):
                     stivaIntrare = stivaIntrare[0:-lungime]
                     stivaIntrare.append(elementLucru.char)
 
-def citireListaProductie():
+def citireListaProductie(file_name):
     nonTerminali = set()
-    with open("input.txt", "r") as file:
+    with open(file_name, "r") as file:
         lines = file.readlines()
         rules = []
 
         for line in lines:
             line = line.strip()
-            line = line.replace(' ', '')
             parts = line.split("->")
+            rule_name = parts[0].strip()
+            terms = parts[1].split()
 
-            if parts[0] == parts[1][0]:
+            if rule_name == terms[0]:
                 print("Gramatica recursiva la stanga, nu se poate analiza")
                 return None, None
 
-            nonTerminali.add(parts[0])
+            nonTerminali.add(rule_name)
 
-            charList = [char for char in parts[1]]
-            rules.append([parts[0], charList])
+            rules.append([rule_name, terms])
     return rules, nonTerminali
 
+def citireAtomi(file_name):
+    atomi = []
+
+    with open(file_name, "r") as file:
+        atomi = [line.strip() for line in file.readlines()]
+
+    return atomi
+
+def citireFIP(file_name):
+    fip = []
+
+    with open(file_name, "r") as file:
+        lines = file.readlines()
+
+        for line in lines:
+            parts = line.split()
+
+            code = int(parts[0])
+            symbol_id = int(parts[1])
+
+            fip.append([code, symbol_id])
+
+    return fip
+
 if __name__ == '__main__':
-    listaReguliProductie, nonTerminali = citireListaProductie()
+
+    if len(sys.argv) < 4:
+        print("Usage: %s <grammar_file> <atoms_file> <input_file>"%(
+            sys.argv[0]))
+        sys.exit(1)
+
+    grammar_file = sys.argv[1]
+    atoms_file = sys.argv[2]
+    input_file = sys.argv[3]
+
+    listaReguliProductie, nonTerminali =\
+        citireListaProductie(grammar_file)
+
     if listaReguliProductie == None:
         sys.exit(1)
 
+    atomi = citireAtomi(atoms_file)
+
+    #print(atomi)
+
     #print(listaReguliProductie)
-    inputDeVerificat = input("Verificati: ")
+    inputDeVerificat = citireFIP(input_file)
 
     index = parcurgere(inputDeVerificat, listaReguliProductie,
-            nonTerminali)
+            nonTerminali, atomi)
 
     if index == len(inputDeVerificat):
         print("Secventa acceptata")
